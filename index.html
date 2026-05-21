@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MHS Engineering Club</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --maroon: #6B1E2E;
+      --maroon-dark: #4a1220;
+      --maroon-light: #8c2a3e;
+      --blue: #7EC8E3;
+      --blue-light: #aeddf0;
+      --blue-dark: #4fa8c8;
+      --cream: #f8f4f0;
+      --dark: #111111;
+      --gray: #555;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--dark);
+      overflow-x: hidden;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.2rem 4rem;
+      background: rgba(107, 30, 46, 0.97);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 2px 30px rgba(0,0,0,0.2);
+    }
+
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.6rem;
+      color: var(--blue);
+      letter-spacing: 2px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: rgba(255,255,255,0.85);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--blue); }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      background: var(--maroon-dark);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 0 8rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -200px; right: -200px;
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, rgba(126,200,227,0.12) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .hero::after {
+      content: 'ENGINEERING';
+      position: absolute;
+      bottom: -40px; right: -20px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 18rem;
+      color: rgba(255,255,255,0.03);
+      letter-spacing: 10px;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .hero-tag {
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.2s forwards;
+    }
+
+    .hero h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(4rem, 10vw, 9rem);
+      line-height: 0.95;
+      color: white;
+      letter-spacing: 3px;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.4s forwards;
+    }
+
+    .hero h1 span { color: var(--blue); }
+
+    .hero-sub {
+      margin-top: 2rem;
+      font-size: 1.1rem;
+      color: rgba(255,255,255,0.6);
+      max-width: 480px;
+      line-height: 1.7;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.6s forwards;
+    }
+
+    .hero-btns {
+      margin-top: 3rem;
+      display: flex;
+      gap: 1rem;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.8s forwards;
+    }
+
+    .btn {
+      padding: 0.9rem 2.2rem;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: all 0.25s;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-primary {
+      background: var(--blue);
+      color: var(--maroon-dark);
+    }
+
+    .btn-primary:hover {
+      background: var(--blue-light);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(126,200,227,0.3);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: white;
+      border: 1.5px solid rgba(255,255,255,0.3);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--blue);
+      color: var(--blue);
+      transform: translateY(-2px);
+    }
+
+    /* SECTIONS */
+    section {
+      padding: 7rem 8rem;
+    }
+
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--maroon);
+      margin-bottom: 0.8rem;
+    }
+
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.5rem, 5vw, 4.5rem);
+      letter-spacing: 2px;
+      line-height: 1;
+      color: var(--maroon-dark);
+      margin-bottom: 3rem;
+    }
+
+    /* ABOUT */
+    #about {
+      background: white;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6rem;
+      align-items: center;
+    }
+
+    .about-text p {
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: var(--gray);
+      margin-bottom: 1.2rem;
+    }
+
+    .about-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .stat-card {
+      background: var(--cream);
+      border-left: 4px solid var(--blue);
+      padding: 1.8rem 1.5rem;
+      border-radius: 0 8px 8px 0;
+    }
+
+    .stat-card .number {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 3rem;
+      color: var(--maroon);
+      letter-spacing: 2px;
+    }
+
+    .stat-card .label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--gray);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 0.3rem;
+    }
+
+    /* MEETINGS */
+    #meetings {
+      background: var(--maroon-dark);
+      position: relative;
+      overflow: hidden;
+    }
+
+    #meetings::before {
+      content: '';
+      position: absolute;
+      bottom: -100px; left: -100px;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(126,200,227,0.08) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    #meetings .section-label { color: var(--blue-light); }
+    #meetings .section-title { color: white; }
+
+    .meeting-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(126,200,227,0.2);
+      border-radius: 12px;
+      padding: 3rem;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 3rem;
+      backdrop-filter: blur(5px);
+    }
+
+    .meeting-item h3 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.1rem;
+      letter-spacing: 2px;
+      color: var(--blue);
+      margin-bottom: 0.8rem;
+      text-transform: uppercase;
+    }
+
+    .meeting-item p {
+      font-size: 1rem;
+      color: rgba(255,255,255,0.75);
+      line-height: 1.6;
+    }
+
+    .meeting-item .big {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.5rem;
+      color: white;
+      letter-spacing: 2px;
+      line-height: 1;
+      margin-bottom: 0.3rem;
+    }
+
+    /* PROJECTS */
+    #projects {
+      background: var(--cream);
+    }
+
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+
+    .project-card {
+      background: white;
+      border-radius: 12px;
+      padding: 2.5rem 2rem;
+      border-top: 4px solid var(--maroon);
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+
+    .project-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 50px rgba(107,30,46,0.12);
+    }
+
+    .project-icon {
+      font-size: 2.2rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .project-card h3 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.4rem;
+      letter-spacing: 1.5px;
+      color: var(--maroon-dark);
+      margin-bottom: 0.8rem;
+    }
+
+    .project-card p {
+      font-size: 0.95rem;
+      color: var(--gray);
+      line-height: 1.7;
+    }
+
+    .project-tag {
+      display: inline-block;
+      margin-top: 1.2rem;
+      padding: 0.3rem 0.9rem;
+      background: rgba(126,200,227,0.15);
+      color: var(--blue-dark);
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    /* MEMBERS */
+    #members {
+      background: white;
+    }
+
+    .members-intro {
+      font-size: 1.05rem;
+      color: var(--gray);
+      line-height: 1.8;
+      max-width: 600px;
+      margin-bottom: 3rem;
+    }
+
+    .members-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+    }
+
+    .member-card {
+      text-align: center;
+      padding: 2rem 1rem;
+      border-radius: 12px;
+      background: var(--cream);
+      transition: transform 0.2s;
+    }
+
+    .member-card:hover { transform: translateY(-4px); }
+
+    .member-avatar {
+      width: 70px; height: 70px;
+      border-radius: 50%;
+      background: var(--maroon);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.6rem;
+      color: var(--blue);
+      margin: 0 auto 1rem;
+    }
+
+    .member-card h4 {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--dark);
+      margin-bottom: 0.3rem;
+    }
+
+    .member-card .role {
+      font-size: 0.8rem;
+      color: var(--maroon);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* CONTACT */
+    #contact {
+      background: var(--maroon-dark);
+      text-align: center;
+      padding: 7rem 4rem;
+    }
+
+    #contact .section-label { color: var(--blue-light); }
+    #contact .section-title { color: white; margin-bottom: 1rem; }
+
+    .contact-sub {
+      font-size: 1.05rem;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 3.5rem;
+    }
+
+    .contact-links {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 3rem;
+    }
+
+    .contact-link {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      padding: 1rem 2rem;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(126,200,227,0.25);
+      border-radius: 8px;
+      color: white;
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: all 0.25s;
+    }
+
+    .contact-link:hover {
+      background: rgba(126,200,227,0.15);
+      border-color: var(--blue);
+      color: var(--blue);
+      transform: translateY(-2px);
+    }
+
+    .contact-link .icon { font-size: 1.2rem; }
+
+    /* FOOTER */
+    footer {
+      background: #0a0a0a;
+      color: rgba(255,255,255,0.4);
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
+    }
+
+    footer span { color: var(--blue); }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* DIVIDER */
+    .divider {
+      width: 60px;
+      height: 4px;
+      background: var(--blue);
+      margin-bottom: 2rem;
+      border-radius: 2px;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      nav { padding: 1rem 2rem; }
+      .nav-links { gap: 1.5rem; }
+      .hero { padding: 0 3rem; }
+      section { padding: 5rem 3rem; }
+      #about { grid-template-columns: 1fr; gap: 3rem; }
+      .meeting-card { grid-template-columns: 1fr; gap: 2rem; }
+      .projects-grid { grid-template-columns: 1fr 1fr; }
+      .members-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 600px) {
+      .nav-links { display: none; }
+      .hero { padding: 0 1.5rem; }
+      section { padding: 4rem 1.5rem; }
+      .projects-grid { grid-template-columns: 1fr; }
+      .members-grid { grid-template-columns: 1fr 1fr; }
+      .about-stats { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">MHS Engineering</div>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#meetings">Meetings</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#members">Members</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="home">
+    <div class="hero-tag">Morristown High School</div>
+    <h1>Engineering<br/><span>Club</span></h1>
+    <p class="hero-sub">Where curious minds come together to design, build, and innovate. Open to all disciplines — from mechanical to software and everything in between.</p>
+    <div class="hero-btns">
+      <a href="#contact" class="btn btn-primary">Join the Club</a>
+      <a href="#about" class="btn btn-outline">Learn More</a>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="about-text">
+      <div class="section-label">Who We Are</div>
+      <h2 class="section-title">Built by<br/>Students</h2>
+      <div class="divider"></div>
+      <p>The Morristown High School Engineering Club is a student-run organization for anyone passionate about how things work and how to make them better. Whether you're into robotics, coding, design, or just curious about engineering, you belong here.</p>
+      <p>We work on real projects, learn from each other, and have a great time doing it. No prior experience required — just a willingness to build and explore.</p>
+    </div>
+    <div class="about-stats">
+      <div class="stat-card">
+        <div class="number">ALL</div>
+        <div class="label">Engineering Disciplines Welcome</div>
+      </div>
+      <div class="stat-card">
+        <div class="number">Weekly</div>
+        <div class="label">Meetings Every Tuesday</div>
+      </div>
+      <div class="stat-card">
+        <div class="number">MHS</div>
+        <div class="label">Morristown High School</div>
+      </div>
+      <div class="stat-card">
+        <div class="number">FREE</div>
+        <div class="label">Open to All Students</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MEETINGS -->
+  <section id="meetings">
+    <div class="section-label">When & Where</div>
+    <h2 class="section-title">Meeting Info</h2>
+    <div class="meeting-card">
+      <div class="meeting-item">
+        <h3>Day</h3>
+        <div class="big">Tuesday</div>
+        <p>Every week during the school year</p>
+      </div>
+      <div class="meeting-item">
+        <h3>Time</h3>
+        <div class="big">Lunch</div>
+        <p>10:50 AM – 11:25 AM</p>
+      </div>
+      <div class="meeting-item">
+        <h3>Location</h3>
+        <div class="big">Rm 353</div>
+        <p>Morristown High School</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section id="projects">
+    <div class="section-label">What We Do</div>
+    <h2 class="section-title">Projects</h2>
+    <div class="projects-grid">
+      <div class="project-card">
+        <div class="project-icon">⚙️</div>
+        <h3>Mechanical Design</h3>
+        <p>From CAD modeling to physical prototypes, we bring ideas into the real world through hands-on building and iteration.</p>
+        <span class="project-tag">Ongoing</span>
+      </div>
+      <div class="project-card">
+        <div class="project-icon">💻</div>
+        <h3>Software & Coding</h3>
+        <p>Building apps, scripts, and tools that solve real problems. All experience levels are welcome to contribute and learn.</p>
+        <span class="project-tag">Ongoing</span>
+      </div>
+      <div class="project-card">
+        <div class="project-icon">🔬</div>
+        <h3>Research & Innovation</h3>
+        <p>Exploring new technologies and engineering challenges. We encourage members to pitch and lead their own project ideas.</p>
+        <span class="project-tag">Open to Ideas</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- MEMBERS -->
+  <section id="members">
+    <div class="section-label">The Team</div>
+    <h2 class="section-title">Members</h2>
+    <p class="members-intro">Our club is made up of students from all grade levels and backgrounds. Leadership and advisor information will be updated here as the club grows.</p>
+    <div class="members-grid">
+      <div class="member-card">
+        <div class="member-avatar">VD</div>
+        <h4>Vincent Dellacroce</h4>
+        <div class="role">Co-Founder</div>
+      </div>
+      <div class="member-card">
+        <div class="member-avatar">RL</div>
+        <h4>Rodney Lee</h4>
+        <div class="role">Advisor</div>
+      </div>
+      <div class="member-card">
+        <div class="member-avatar">+</div>
+        <h4>Join Us</h4>
+        <div class="role">Your spot awaits</div>
+      </div>
+      <div class="member-card">
+        <div class="member-avatar">+</div>
+        <h4>Join Us</h4>
+        <div class="role">Your spot awaits</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="section-label">Get Involved</div>
+    <h2 class="section-title">Contact Us</h2>
+    <p class="contact-sub">Interested in joining or have questions? Reach out to us directly or follow us on Instagram.</p>
+    <div class="contact-links">
+      <a href="mailto:77vincent.dellacroce@gmail.com" class="contact-link">
+        <span class="icon">✉️</span>
+        77vincent.dellacroce@gmail.com
+      </a>
+      <a href="mailto:rodney.lee@msdk12.net" class="contact-link">
+        <span class="icon">✉️</span>
+        rodney.lee@msdk12.net
+      </a>
+      <a href="https://instagram.com/mhs.engineeringclub" target="_blank" class="contact-link">
+        <span class="icon">📸</span>
+        @mhs.engineeringclub
+      </a>
+    </div>
+    <a href="mailto:77vincent.dellacroce@gmail.com" class="btn btn-primary">Send Us an Email</a>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>© 2025 <span>Morristown High School Engineering Club</span> · All rights reserved</p>
+  </footer>
+
+</body>
+</html>
