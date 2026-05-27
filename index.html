@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bruin Coffee | Artisanal Fluid Experience</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:wght@200;400;600&display=swap" rel="stylesheet">
+  
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+  <style>
+    :root {
+      --color-espresso: #160c08;
+      --color-roast: #2B1B17;
+    }
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--color-espresso);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    /* Selection overrides for premium feel */
+    ::selection {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+    }
+  </style>
+</head>
+<body class="relative select-none text-white overflow-hidden w-full h-full">
+
+  <canvas id="webgl-canvas" class="absolute inset-0 w-full h-full z-0 block"></canvas>
+
+  <svg class="pointer-events-none fixed inset-0 w-full h-full z-50 opacity-[0.022] mix-blend-overlay">
+    <filter id="noiseFilter">
+      <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch" />
+    </filter>
+    <rect width="100%" height="100%" filter="url(#noiseFilter)" />
+  </svg>
+
+  <main class="absolute inset-0 z-10 flex flex-col justify-between p-8 md:p-16 xl:p-24 pointer-events-none mix-blend-difference">
+    
+    <header class="w-full flex justify-between items-start pointer-events-auto">
+      <div class="flex flex-col gap-1">
+        <span class="text-xs tracking-[0.3em] uppercase font-semibold text-neutral-400">Concept No. 04</span>
+        <span class="text-sm font-light text-neutral-200">Bruin Atelier</span>
+      </div>
+      <nav class="hidden md:flex gap-12 text-sm font-medium tracking-widest uppercase text-neutral-300">
+        <a href="#origin" class="hover:text-white transition-colors duration-300">Origin</a>
+        <a href="#roasts" class="hover:text-white transition-colors duration-300">The Roasts</a>
+        <a href="#experience" class="hover:text-white transition-colors duration-300">Experience</a>
+      </nav>
+      <button class="border border-white/20 px-5 py-2 text-xs tracking-widest uppercase rounded-full bg-white/5 backdrop-blur-md hover:bg-white hover:text-black transition-all duration-500 ease-out">
+        Reserve
+      </button>
+    </header>
+
+    <section class="w-full flex flex-col items-center justify-center flex-grow py-32 md:py-48">
+      <div class="relative overflow-hidden text-center select-none">
+        <h1 class="font-['Playfair_Display'] text-[clamp(2.8rem,9vw,11rem)] font-normal leading-[0.9] tracking-tight text-white mb-4">
+          Bruin Coffee
+        </h1>
+        <p class="text-xs md:text-sm tracking-[0.4em] uppercase font-light text-neutral-400 max-w-md mx-auto translate-y-1">
+          Hyper-realistic liquid dynamics & dark roast philosophy
+        </p>
+      </div>
+    </section>
+
+    <footer class="w-full grid grid-cols-2 md:grid-cols-3 items-end text-neutral-400 text-xs tracking-wider">
+      <div class="flex flex-col gap-2 pointer-events-auto">
+        <span class="font-mono text-[10px] text-neutral-500">// SIMULATION STATS</span>
+        <span id="fps-display" class="font-mono">60.0 FPS // VISCOUS FLUID</span>
+      </div>
+      <div class="hidden md:block text-center italic font-['Playfair_Display'] text-neutral-300 text-base">
+        "Nature, refined through computational physics."
+      </div>
+      <div class="text-right flex flex-col gap-1 items-end">
+        <span class="uppercase tracking-[0.2em] font-semibold text-neutral-200">Interact</span>
+        <span class="text-[11px] text-neutral-500">Drag or move cursor to disrupt surface</span>
+      </div>
+    </footer>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <script>
+    /**
+     * Bruin Coffee — Advanced Fluid Simulation System
+     * Core Design: 2D Heightmap Wave Propagation Pipeline calculated on GPU
+     * using Ping-Pong framebuffers for true mathematical physics execution.
+     */
+
+    // --- Shader Definitions ---
+
+    // Shared Pass-Through Vertex Shader
+    const vertexShaderSource = `
+      varying vec2 vUv;
+      void main() {
+        vUv = uv;
+        gl_Position = vec4(position, 1.0);
+      }
+    `;
+
+    // 1. Fluid Simulation Kernal (GPGPU Heightmap Wave Propagation Propagation)
+    const simulationFragmentShaderSource = `
+      uniform setter {
+        vec2 u_resolution;
+        float u_mouse_force;
+        vec2 u_mouse_pos;
+      };
+      uniform sampler2D u_current_frame;
+      uniform sampler2D u_prev_frame;
+      varying vec2 vUv;
+
+      void main() {
+        vec2 uv = vUv;
+        vec2 texel = vec2(1.0) / u_resolution;
+
+        // Discrete Laplace approximation (4-point stencil neighborhood calculations)
+        float left  = texture2D(u_current_frame, uv + vec2(-texel.x, 0.0)).r;
+        float right = texture2D(u_current_frame, uv + vec2(texel.x, 0.0)).r;
+        float top   = texture2D(u_current_frame, uv + vec2(0.0, texel.y)).r;
+        float bottom= texture2D(u_current_frame, uv + vec2(0.0, -texel.y)).r;
+
+        // Wave Equation: HeightNew = (L + R + T + B) / 2 - HeightOld
+        float currentHeight = texture2D(u_current_frame, uv).r;
+        float prevHeight    = texture2D(u_prev_frame, uv).r;
+        
+        float nextHeight = (left + right + top + bottom) * 0.5 - prevHeight;
+        
+        // High-end viscous attenuation/damping parameter over time
+        nextHeight *= 0.988; 
+
+        // Interaction Injection point (Add force matching mouse vectors)
+        if(u_mouse_force > 0.0) {
+          float dist = distance(uv * u_resolution, u_mouse_pos * u_resolution);
+          // High-fidelity smooth Gaussian falloff brush
+          float influence = smoothstep(18.0, 0.0, dist);
+          nextHeight += influence * u_mouse_force * 0.45;
+        }
+
+        // Clamp safety boundaries to stabilize the floating-point buffer
+        nextHeight = clamp(nextHeight, -10.0, 10.0);
+
+        // Store current height map calculation into Red channel
+        gl_FragColor = vec4(nextHeight, 0.0, 0.0, 1.0);
+      }
+    `;
+
+    // 2. High-End Visual Rendering, Refraction, Specular, and Color Palette Material Shader
+    const renderFragmentShaderSource = `
+      uniform vec2 u_resolution;
+      uniform sampler2D u_buffer;
+      varying vec2 vUv;
+
+      void main() {
+        vec2 uv = vUv;
+        vec2 texel = vec2(1.0) / u_resolution;
+
+        // Compute explicit Sobel-style analytical normal map from spatial height variations
+        float hl = texture2D(u_buffer, uv + vec2(-texel.x, 0.0)).r;
+        float hr = texture2D(u_buffer, uv + vec2(texel.x, 0.0)).r;
+        float ht = texture2D(u_buffer, uv + vec2(0.0, texel.y)).r;
+        float hb = texture2D(u_buffer, uv + vec2(0.0, -texel.y)).r;
+
+        // Calculate analytical derivatives for precision surface slope calculation
+        vec3 normal = normalize(vec3((hl - hr) * 2.0, (hb - ht) * 2.0, 1.0));
+
+        // Premium Palette definitions (Luxury Espresso Gradient Map)
+        vec3 baseEspresso = vec3(0.086, 0.047, 0.031); // Rich Deep Espresso Base (#160c08)
+        vec3 darkRoast    = vec3(0.188, 0.114, 0.082); // Warm Golden Crema Roast Tone (#301d15)
+        
+        // Dynamic refraction distortion vector mapping
+        vec2 distortion = normal.xy * 0.045;
+
+        // High-End Chromatic Aberration (Split RGB channels across refractive gradients)
+        float rChannel = texture2D(u_buffer, uv + distortion * 1.1).r;
+        float gChannel = texture2D(u_buffer, uv + distortion * 1.0).r;
+        float bChannel = texture2D(u_buffer, uv + distortion * 0.9).r;
+        
+        // Interpolate background tone gradient mapped directly across the surface height matrix
+        float combinedHeight = (rChannel + gChannel + bChannel) / 3.0;
+        vec3 liquidColor = mix(baseEspresso, darkRoast, clamp(combinedHeight * 1.5, 0.0, 1.0));
+
+        // Add subtle chromatic color split directly to edge refraction
+        liquidColor.r += rChannel * 0.022;
+        liquidColor.b += bChannel * 0.015;
+
+        // Blinn-Phong Advanced Specular Highlight Optimization Matrix
+        vec3 lightDir = normalize(vec3(0.1, 0.4, 0.9)); // Virtual cinematic studio softbox light
+        vec3 viewDir  = vec3(0.0, 0.0, 1.0);
+        vec3 halfDir  = normalize(lightDir + viewDir);
+        
+        float specExponent = 32.0; // Sharp liquid gloss surface
+        float specularIntensity = pow(max(dot(normal, halfDir), 0.0), specExponent);
+        vec3 specularColor = vec3(0.95, 0.88, 0.82) * specularIntensity * 0.75; // Golden-tinted light catch
+
+        // Fresnel reflection mapping for steep angles
+        float fresnel = pow(1.0 - max(dot(normal, viewDir), 0.0), 3.0) * 0.25;
+
+        // Final Composed Fragment Layout Output
+        vec3 finalOutput = liquidColor + specularColor + vec3(fresnel);
+        gl_FragColor = vec4(finalOutput, 1.0);
+      }
+    `;
+
+    // --- Application Architecture Pipeline ---
+
+    class FluidSimulationEngine {
+      constructor() {
+        this.canvas = document.getElementById('webgl-canvas');
+        this.fpsDisplay = document.getElementById('fps-display');
+        
+        // Mouse Tracking state variables
+        this.mouse = { x: 0.5, y: 0.5, prevX: 0.5, prevY: 0.5, targetX: 0.5, targetY: 0.5 };
+        this.pointerForce = 0.0;
+        this.isInteracting = false;
+        
+        // FPS telemetry variables
+        this.lastTime = performance.now();
+        this.frameCount = 0;
+
+        this.initEngine();
+      }
+
+      initEngine() {
+        // 1. Setup WebGL Context via Three.js Framework
+        this.scene = new THREE.Scene();
+        this.camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+        this.renderer = new THREE.WebGLRenderer({
+          canvas: this.canvas,
+          antialias: false,
+          powerPreference: "high-performance",
+          stencil: false,
+          depth: false
+        });
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Dynamic capacity cap for 4K performance protection
+
+        this.width = Math.floor(window.innerWidth * this.renderer.getPixelRatio());
+        this.height = Math.floor(window.innerHeight * this.renderer.getPixelRatio());
+
+        // 2. Setup GPGPU Ping-Pong Buffers Allocation Framework
+        const renderTargetOptions = {
+          minFilter: THREE.LinearFilter,
+          magFilter: THREE.LinearFilter,
+          format: THREE.RGBAFormat,
+          type: THREE.FloatType, // High-precision floating-point textures required for differential physics equations
+          depthBuffer: false,
+          stencilBuffer: false,
+        };
+
+        this.bufferA = new THREE.WebGLRenderTarget(this.width, this.height, renderTargetOptions);
+        this.bufferB = new THREE.WebGLRenderTarget(this.width, this.height, renderTargetOptions);
+        this.bufferC = new THREE.WebGLRenderTarget(this.width, this.height, renderTargetOptions);
+
+        // 3. Define and Compile Shader Materials
+        this.simulationMaterial = new THREE.ShaderMaterial({
+          vertexShader: vertexShaderSource,
+          fragmentShader: simulationFragmentShaderSource,
+          uniforms: {
+            u_resolution: { value: new THREE.Vector2(this.width, this.height) },
+            u_current_frame: { value: null },
+            u_prev_frame: { value: null },
+            u_mouse_pos: { value: new THREE.Vector2(0, 0) },
+            u_mouse_force: { value: 0.0 }
+          }
+        });
+
+        this.renderMaterial = new THREE.ShaderMaterial({
+          vertexShader: vertexShaderSource,
+          fragmentShader: renderFragmentShaderSource,
+          uniforms: {
+            u_resolution: { value: new THREE.Vector2(this.width, this.height) },
+            u_buffer: { value: null }
+          }
+        });
+
+        // 4. Create Geometry Plane covering full viewport screen space mesh
+        this.geometry = new THREE.PlaneGeometry(2, 2);
+        this.mesh = new THREE.Mesh(this.geometry, this.simulationMaterial);
+        this.scene.add(this.mesh);
+
+        // Bind interactive triggers
+        this.setupEventListeners();
+        
+        // Launch Core Loop Execution Pipeline
+        this.tick();
+      }
+
+      setupEventListeners() {
+        const handlePointerMove = (clientX, clientY) => {
+          // Normalize viewport space coordinates (Invert Y axes vector structure)
+          this.mouse.targetX = clientX / window.innerWidth;
+          this.mouse.targetY = 1.0 - (clientY / window.innerHeight);
+          
+          if (!this.isInteracting) {
+            this.mouse.x = this.mouse.targetX;
+            this.mouse.y = this.mouse.targetY;
+            this.mouse.prevX = this.mouse.targetX;
+            this.mouse.prevY = this.mouse.targetY;
+            this.isInteracting = true;
+          }
+        };
+
+        window.addEventListener('mousemove', (e) => handlePointerMove(e.clientX, e.clientY));
+        
+        window.addEventListener('touchmove', (e) => {
+          if(e.touches.length > 0) {
+            handlePointerMove(e.touches[0].clientX, e.touches[0].clientY);
+          }
+        }, { passive: true });
+
+        window.addEventListener('resize', () => this.onWindowResize());
+      }
+
+      onWindowResize() {
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        
+        this.width = Math.floor(window.innerWidth * this.renderer.getPixelRatio());
+        this.height = Math.floor(window.innerHeight * this.renderer.getPixelRatio());
+
+        this.bufferA.setSize(this.width, this.height);
+        this.bufferB.setSize(this.width, this.height);
+        this.bufferC.setSize(this.width, this.height);
+
+        this.simulationMaterial.uniforms.u_resolution.value.set(this.width, this.height);
+        this.renderMaterial.uniforms.u_resolution.value.set(this.width, this.height);
+      }
+
+      calculateTelemetryFPS() {
+        this.frameCount++;
+        const currentTime = performance.now();
+        if (currentTime >= this.lastTime + 1000) {
+          const calculatedFPS = ((this.frameCount * 1000) / (currentTime - this.lastTime)).toFixed(1);
+          this.fpsDisplay.innerText = `${calculatedFPS} FPS // VISCOUS FLUID`;
+          this.frameCount = 0;
+          this.lastTime = currentTime;
+        }
+      }
+
+      tick() {
+        requestAnimationFrame(() => this.tick());
+
+        // Performance telemetry track
+        this.calculateTelemetryFPS();
+
+        // High-fidelity Lerp smoothing configurations over pointer track coordinates
+        this.mouse.x += (this.mouse.targetX - this.mouse.x) * 0.12;
+        this.mouse.y += (this.mouse.targetY - this.mouse.y) * 0.12;
+
+        // Calculate immediate tracking velocity to map force vectors
+        const dx = this.mouse.x - this.mouse.prevX;
+        const dy = this.mouse.y - this.mouse.prevY;
+        const velocity = Math.sqrt(dx * dx + dy * dy);
+        
+        // Dynamically compute organic visceral force
+        this.pointerForce = Math.min(velocity * 8.5, 1.5);
+
+        // Update active uniform variables parameters inside simulation core context
+        this.simulationMaterial.uniforms.u_mouse_pos.value.set(this.mouse.x, this.mouse.y);
+        this.simulationMaterial.uniforms.u_mouse_force.value = this.pointerForce;
+
+        // --- STEP 1: Process GPU Fluid Propagation Cycle via Ping-Pong Buffer Rotations ---
+        this.mesh.material = this.simulationMaterial;
+        this.simulationMaterial.uniforms.u_current_frame.value = this.bufferA.texture;
+        this.simulationMaterial.uniforms.u_prev_frame.value = this.bufferB.texture;
+
+        // Compute step calculation mapping output directly to Buffer C
+        this.renderer.setRenderTarget(this.bufferC);
+        this.renderer.render(this.scene, this.camera);
+
+        // --- STEP 2: Shift Render Materials pipeline to screen space presentation output ---
+        this.mesh.material = this.renderMaterial;
+        this.renderMaterial.uniforms.u_buffer.value = this.bufferC.texture;
+
+        // Output completely compiled final fragment stack directly to default viewport canvas
+        this.renderer.setRenderTarget(null);
+        this.renderer.render(this.scene, this.camera);
+
+        // --- STEP 3: Execute memory safe Pointer/Buffer state shifts ---
+        this.mouse.prevX = this.mouse.x;
+        this.mouse.prevY = this.mouse.y;
+
+        // Multi-buffer frame rotation cycle pattern
+        const temp = this.bufferB;
+        this.bufferB = this.bufferA;
+        this.bufferA = this.bufferC;
+        this.bufferC = temp;
+      }
+    }
+
+    // Initialize application execution instance on window content compilation load
+    window.addEventListener('DOMContentLoaded', () => {
+      new FluidSimulationEngine();
+    });
+  </script>
+</body>
+</html>
