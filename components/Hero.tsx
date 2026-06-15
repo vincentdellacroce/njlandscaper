@@ -52,10 +52,25 @@ export default function Hero() {
     const lowMem = typeof nav.deviceMemory === "number" && nav.deviceMemory < 4;
     const light = Boolean(c?.saveData) || slowNet || lowMem;
 
+    // Guarantee the element is *actually* muted + inline before play().
+    // React's JSX `muted` attribute does NOT reliably set the DOM property,
+    // and mobile browsers (iOS Safari especially) block autoplay of a video
+    // that isn't truly muted — which made the hero appear frozen on phones.
+    v.muted = true;
+    v.defaultMuted = true;
+    v.playsInline = true;
+    v.setAttribute("muted", "");
+    v.setAttribute("playsinline", "");
+
     v.src = light ? "/video/hero-light.mp4" : "/video/hero.mp4";
     v.load();
-    const p = v.play();
-    if (p && typeof p.catch === "function") p.catch(() => {});
+    const tryPlay = () => {
+      const p = v.play();
+      if (p && typeof p.catch === "function") p.catch(() => {});
+    };
+    tryPlay();
+    // Retry once the data is ready (covers slower mobile connections).
+    v.addEventListener("canplay", tryPlay, { once: true });
   }, [reduce]);
 
   function skip() {
