@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-cormorant: "Cormorant", Georgia, serif;
+  --font-montserrat: "Montserrat", system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+  /* offset anchor targets so the fixed nav doesn't cover headings */
+  scroll-padding-top: 6rem;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background-color: theme("colors.paper");
+  color: theme("colors.ink");
+  font-family: var(--font-montserrat);
+}
+
+/* Film grain — a faint, fixed tactile layer over the whole page.
+   Reads "expensive" the way print stock does; imperceptible on text. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 45; /* above section content, below the nav (z-50) */
+  pointer-events: none;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::after {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Refined text selection */
+::selection {
+  background-color: theme("colors.forest");
+  color: #fff;
+}
+
+@layer components {
+  .eyebrow {
+    @apply font-sans text-[0.7rem] font-medium uppercase tracking-label text-moss;
+  }
+
+  .btn-primary {
+    @apply relative isolate inline-flex items-center justify-center gap-2 overflow-hidden rounded-full
+      bg-forest px-7 py-3.5 font-sans text-[0.78rem] font-semibold uppercase tracking-wide2 text-paper
+      cursor-pointer transition-colors duration-300 ease-estate
+      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2 focus-visible:ring-offset-paper;
+  }
+  /* Ink fill that rises from the base on hover — a crafted sweep, not a flat swap. */
+  .btn-primary::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-color: theme("colors.ink");
+    transform: translateY(101%);
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .btn-primary:hover::after {
+    transform: translateY(0);
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 font-sans text-[0.78rem] font-semibold uppercase
+      tracking-wide2 text-ink transition-colors duration-300 ease-estate hover:text-moss cursor-pointer
+      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2 focus-visible:ring-offset-paper;
+  }
+
+  .hairline {
+    @apply h-px w-full bg-hairline;
+  }
+
+  /* Image placeholder — clearly labeled slot for the client's real photography */
+  .photo-slot {
+    @apply relative flex items-center justify-center overflow-hidden bg-bone;
+    background-image: linear-gradient(135deg, #f4f2ec 0%, #e9e7df 100%);
+  }
+}
