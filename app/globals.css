@@ -21,6 +21,18 @@ body {
   font-family: var(--font-montserrat);
 }
 
+/* The hero video is muted ambient autoplay — never show native video UI.
+   On iOS this removes the big central play-button overlay Safari shows when
+   autoplay is blocked, so the poster frame reads as a clean still image. */
+video::-webkit-media-controls-start-playback-button,
+video::-webkit-media-controls-play-button,
+video::-webkit-media-controls-panel,
+video::-webkit-media-controls {
+  display: none !important;
+  -webkit-appearance: none;
+  opacity: 0;
+}
+
 /* Film grain — a faint, fixed tactile layer over the whole page.
    Reads "expensive" the way print stock does; imperceptible on text. */
 body::after {
