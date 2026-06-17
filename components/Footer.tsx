@@ -9,7 +9,7 @@ export default function Footer() {
         <div className="grid gap-12 border-t border-white/10 py-16 lg:grid-cols-12">
           <div className="lg:col-span-5">
             <div className="text-paper">
-              <Logo />
+              <Logo light />
             </div>
             <p className="mt-6 max-w-xs font-sans text-sm font-light leading-relaxed text-paper/60">
               Luxury landscape design-build, masonry, and estate care for {site.region}.

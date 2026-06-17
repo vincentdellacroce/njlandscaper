@@ -122,13 +122,13 @@ export default function Hero() {
           preload="auto"
           poster="/video/hero-start.jpg"
           onEnded={() => setDone(true)}
-          aria-label="Aerial flight over a Morris Estate Landscapes garden, resolving on the tree emblem mowed into the lawn"
+          aria-label="Aerial flight over a Mowtrix High End Designs garden, resolving on the tree emblem mowed into the lawn"
         />
       ) : (
         /* eslint-disable-next-line @next/next/no-img-element */
         <img
           src="/video/hero-start.jpg"
-          alt="A Morris Estate Landscapes garden at dusk"
+          alt="A Mowtrix High End Designs garden at dusk"
           className="absolute inset-0 h-full w-full object-cover"
         />
       )}

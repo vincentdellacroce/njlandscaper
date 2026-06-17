@@ -1,4 +1,4 @@
-# Morris Estate Landscapes — Website
+# Mowtrix High End Designs — Website
 
 A luxury, single-page marketing site for a Morris County, NJ landscaping firm.
 Built with **Next.js 16**, **TypeScript**, **Tailwind CSS**, and **Framer Motion**.

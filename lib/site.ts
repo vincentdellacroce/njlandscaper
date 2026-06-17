@@ -6,8 +6,8 @@
  *  business name, phone, email, address, and Formspree endpoint.
  */
 export const site = {
-  name: "Morris Estate Landscapes",
-  shortName: "Morris Estate",
+  name: "Mowtrix High End Designs",
+  shortName: "Mowtrix",
   tagline: "Landscape Design · Build · Estate Care",
   region: "Morris County, New Jersey",
 

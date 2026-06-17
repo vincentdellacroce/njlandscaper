@@ -1,38 +1,35 @@
-import { site } from "@/lib/site";
+import Image from "next/image";
 
 /**
- * Minimal estate sprig mark + serif wordmark.
- * Uses currentColor so it inverts cleanly over the hero and on white.
+ * Brand logo (tree emblem) + serif wordmark.
+ * The PNG is a single dark-green mark on transparency; over dark backgrounds
+ * (the hero, the footer) pass `light` to render it white for contrast.
  */
-export default function Logo({ className = "" }: { className?: string }) {
+export default function Logo({
+  className = "",
+  light = false,
+}: {
+  className?: string;
+  light?: boolean;
+}) {
   return (
-    <span className={`flex items-center gap-3 ${className}`}>
-      <svg
-        viewBox="0 0 40 40"
-        className="h-8 w-8 shrink-0"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        strokeLinecap="round"
-        aria-hidden="true"
-      >
-        {/* central stem */}
-        <path d="M20 35V11" />
-        {/* leaf pairs */}
-        <path d="M20 27c-4 0-7-2-8-6 4-1 7 1 8 6Z" />
-        <path d="M20 27c4 0 7-2 8-6-4-1-7 1-8 6Z" />
-        <path d="M20 19c-3.4 0-6-1.8-6.8-5.2 3.4-.8 6 1 6.8 5.2Z" />
-        <path d="M20 19c3.4 0 6-1.8 6.8-5.2-3.4-.8-6 1-6.8 5.2Z" />
-        {/* crown bud */}
-        <path d="M20 12c-1.6-1.4-2-3.4-1-5.6 2.2.6 3 2.6 1 5.6Z" />
-        <path d="M20 12c1.6-1.4 2-3.4 1-5.6-2.2.6-3 2.6-1 5.6Z" />
-      </svg>
+    <span className={`flex items-center gap-2.5 ${className}`}>
+      <Image
+        src="/logo.png"
+        alt="Mowtrix High End Designs"
+        width={40}
+        height={41}
+        priority
+        className={`h-9 w-auto shrink-0 transition-[filter] duration-500 ease-estate ${
+          light ? "[filter:brightness(0)_invert(1)]" : ""
+        }`}
+      />
       <span className="flex flex-col leading-none">
         <span className="font-serif text-[1.35rem] font-semibold tracking-tight">
-          Morris Estate
+          Mowtrix
         </span>
-        <span className="font-sans text-[0.55rem] font-medium uppercase tracking-label opacity-70">
-          Landscapes
+        <span className="font-sans text-[0.5rem] font-medium uppercase tracking-[0.2em] opacity-70">
+          High End Designs
         </span>
       </span>
     </span>

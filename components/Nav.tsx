@@ -45,7 +45,7 @@ export default function Nav() {
           }`}
           aria-label={`${site.name} — home`}
         >
-          <Logo />
+          <Logo light={!solid} />
         </a>
 
         {/* Desktop links */}

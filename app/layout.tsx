@@ -17,9 +17,9 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
-  title: "Morris Estate Landscapes | Luxury Landscape Design-Build in Morris County, NJ",
+  title: "Mowtrix High End Designs | Luxury Landscape Design-Build in Morris County, NJ",
   description:
-    "Morris Estate Landscapes designs, builds, and maintains timeless outdoor spaces for distinguished New Jersey properties. Landscape design-build, hardscaping & masonry, and estate maintenance in Morris County.",
+    "Mowtrix High End Designs designs, builds, and maintains timeless outdoor spaces for distinguished New Jersey properties. Landscape design-build, hardscaping & masonry, and estate maintenance in Morris County.",
   keywords: [
     "luxury landscaping NJ",
     "Morris County landscape design",
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     "landscape design-build NJ",
   ],
   openGraph: {
-    title: "Morris Estate Landscapes",
+    title: "Mowtrix High End Designs",
     description:
       "Timeless landscape design-build, masonry, and estate care for Morris County, New Jersey.",
     type: "website",

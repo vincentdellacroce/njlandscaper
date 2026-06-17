@@ -10,7 +10,7 @@ export default function About() {
           <SmoothScrollHero
             desktopImage="/photos/our-story-crew.webp"
             mobileImage="/photos/our-story-crew.webp"
-            alt="The Morris Estate Landscapes crew on site with the company truck and trailer"
+            alt="The Mowtrix High End Designs crew on site with the company truck and trailer"
             initialClipPercentage={25}
             finalClipPercentage={75}
             className="aspect-[3/4] w-full lg:sticky lg:top-28"
@@ -28,7 +28,7 @@ export default function About() {
           <Reveal delay={0.1}>
             <div className="mt-8 space-y-5 font-sans text-[0.95rem] font-light leading-relaxed text-graphite">
               <p>
-                Morris Estate Landscapes began with a single wheelbarrow and an
+                Mowtrix High End Designs began with a single wheelbarrow and an
                 unwavering belief that the grounds of a home deserve the same
                 artistry as its architecture. Three generations later, that belief
                 still guides every project we take on.
