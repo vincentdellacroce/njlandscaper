@@ -36,8 +36,11 @@ export default function Hero() {
   // Adaptive quality: capable devices on good connections get the sharp
   // native-720p master; constrained devices (data-saver, slow network, or
   // low memory) get the lighter 480p encode.
+  // The muted, ambient hero video plays on ALL devices — including
+  // reduced-motion (a silent background video is acceptable) — so phones with
+  // "Reduce Motion" on still get the intro. Heavier UI animations are still
+  // toned down via `reduce` elsewhere.
   useEffect(() => {
-    if (reduce) return;
     const v = videoRef.current;
     if (!v) return;
 
@@ -50,17 +53,21 @@ export default function Hero() {
       ? ["slow-2g", "2g", "3g"].includes(c.effectiveType)
       : false;
     const lowMem = typeof nav.deviceMemory === "number" && nav.deviceMemory < 4;
-    const light = Boolean(c?.saveData) || slowNet || lowMem;
+    const smallScreen =
+      typeof window !== "undefined" &&
+      window.matchMedia("(max-width: 820px)").matches;
+    // Phones get the small/fast encode — it loads quickly and autoplays reliably.
+    const light = smallScreen || Boolean(c?.saveData) || slowNet || lowMem;
 
-    // Guarantee the element is *actually* muted + inline before play().
-    // React's JSX `muted` attribute does NOT reliably set the DOM property,
-    // and mobile browsers (iOS Safari especially) block autoplay of a video
-    // that isn't truly muted — which made the hero appear frozen on phones.
+    // Force the element to be *truly* muted + inline before play(). React's JSX
+    // `muted` attr doesn't reliably set the DOM property, and mobile browsers
+    // block autoplay of any video that isn't genuinely muted.
     v.muted = true;
     v.defaultMuted = true;
     v.playsInline = true;
     v.setAttribute("muted", "");
     v.setAttribute("playsinline", "");
+    v.setAttribute("webkit-playsinline", "");
 
     v.src = light ? "/video/hero-light.mp4" : "/video/hero.mp4";
     v.load();
@@ -69,9 +76,10 @@ export default function Hero() {
       if (p && typeof p.catch === "function") p.catch(() => {});
     };
     tryPlay();
-    // Retry once the data is ready (covers slower mobile connections).
+    // Retry as data becomes available (covers slower mobile connections).
+    v.addEventListener("loadeddata", tryPlay, { once: true });
     v.addEventListener("canplay", tryPlay, { once: true });
-  }, [reduce]);
+  }, []);
 
   function skip() {
     const v = videoRef.current;
@@ -87,28 +95,20 @@ export default function Hero() {
       id="top"
       className="relative h-[100svh] min-h-[640px] w-full overflow-hidden bg-ink"
     >
-      {/* Cinematic intro video → holds on the mowed-grass logo.
-          src is set adaptively in useEffect (high vs light tier). */}
-      {!reduce ? (
-        <video
-          ref={videoRef}
-          className="absolute inset-0 h-full w-full object-cover"
-          muted
-          playsInline
-          preload="auto"
-          poster="/video/hero-start.jpg"
-          onEnded={() => setDone(true)}
-          aria-label="Aerial flight over a Morris Estate Landscapes garden, resolving on the tree emblem mowed into the lawn"
-        />
-      ) : (
-        /* Reduced-motion: show the final logo frame, no playback */
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src="/video/hero-end.jpg"
-          alt="The Morris Estate Landscapes tree emblem mowed into a manicured estate lawn"
-          className="absolute inset-0 h-full w-full object-cover"
-        />
-      )}
+      {/* Cinematic intro video (muted ambient) → holds on the mowed-grass logo.
+          Always rendered; src + autoplay handled in the effect above. If a phone
+          blocks autoplay (e.g. Low Power Mode), the poster frame shows instead. */}
+      <video
+        ref={videoRef}
+        className="absolute inset-0 h-full w-full object-cover"
+        autoPlay
+        muted
+        playsInline
+        preload="auto"
+        poster="/video/hero-start.jpg"
+        onEnded={() => setDone(true)}
+        aria-label="Aerial flight over a Morris Estate Landscapes garden, resolving on the tree emblem mowed into the lawn"
+      />
 
       {/* Top scrim — keeps the navigation legible over the bright lawn */}
       <div className="absolute inset-0 bg-gradient-to-b from-ink/55 via-transparent to-transparent" />
