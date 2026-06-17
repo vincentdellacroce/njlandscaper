@@ -12,6 +12,10 @@ export default function Hero() {
   const videoRef = useRef<HTMLVideoElement>(null);
   // `done` = the intro has finished and the supplementing content is shown
   const [done, setDone] = useState(false);
+  // `videoBlocked` = autoplay was refused (e.g. iOS Low Power Mode). When true we
+  // unmount the <video> entirely and show a clean still image — so iOS can never
+  // render its play-button overlay.
+  const [videoBlocked, setVideoBlocked] = useState(false);
 
   // Reduced-motion users skip the cinematic intro entirely.
   useEffect(() => {
@@ -71,14 +75,25 @@ export default function Hero() {
 
     v.src = light ? "/video/hero-light.mp4" : "/video/hero.mp4";
     v.load();
+
+    const onBlocked = () => {
+      setVideoBlocked(true); // autoplay refused → swap to a still image
+      setDone(true); // reveal the headline/CTAs over the still
+    };
     const tryPlay = () => {
       const p = v.play();
-      if (p && typeof p.catch === "function") p.catch(() => {});
+      if (p && typeof p.catch === "function") p.catch(onBlocked);
     };
     tryPlay();
     // Retry as data becomes available (covers slower mobile connections).
     v.addEventListener("loadeddata", tryPlay, { once: true });
     v.addEventListener("canplay", tryPlay, { once: true });
+    // Fallback: some browsers neither reject nor play — if it's still paused a
+    // moment after data is ready, treat it as blocked.
+    const t = setTimeout(() => {
+      if (v.readyState >= 2 && v.paused) onBlocked();
+    }, 2600);
+    return () => clearTimeout(t);
   }, []);
 
   function skip() {
@@ -95,20 +110,28 @@ export default function Hero() {
       id="top"
       className="relative h-[100svh] min-h-[640px] w-full overflow-hidden bg-ink"
     >
-      {/* Cinematic intro video (muted ambient) → holds on the mowed-grass logo.
-          Always rendered; src + autoplay handled in the effect above. If a phone
-          blocks autoplay (e.g. Low Power Mode), the poster frame shows instead. */}
-      <video
-        ref={videoRef}
-        className="absolute inset-0 h-full w-full object-cover"
-        autoPlay
-        muted
-        playsInline
-        preload="auto"
-        poster="/video/hero-start.jpg"
-        onEnded={() => setDone(true)}
-        aria-label="Aerial flight over a Morris Estate Landscapes garden, resolving on the tree emblem mowed into the lawn"
-      />
+      {/* Cinematic intro video (muted ambient). If autoplay is refused (e.g. iOS
+          Low Power Mode) we unmount it and show a still image — so no play button. */}
+      {!videoBlocked ? (
+        <video
+          ref={videoRef}
+          className="absolute inset-0 h-full w-full object-cover"
+          autoPlay
+          muted
+          playsInline
+          preload="auto"
+          poster="/video/hero-start.jpg"
+          onEnded={() => setDone(true)}
+          aria-label="Aerial flight over a Morris Estate Landscapes garden, resolving on the tree emblem mowed into the lawn"
+        />
+      ) : (
+        /* eslint-disable-next-line @next/next/no-img-element */
+        <img
+          src="/video/hero-start.jpg"
+          alt="A Morris Estate Landscapes garden at dusk"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+      )}
 
       {/* Top scrim — keeps the navigation legible over the bright lawn */}
       <div className="absolute inset-0 bg-gradient-to-b from-ink/55 via-transparent to-transparent" />
